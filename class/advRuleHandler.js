@@ -160,31 +160,24 @@ RuleHandler.prototype.expireCheck = function(event) {
   return
 }
 
-//TODO
 /**
  * @function: get uncompleted events list
  */
-RuleHandler.prototype.getUncompleteAdvanceEvent = function() {
-  let trace = []
+RuleHandler.prototype.getTraces = function() {
+  let traces = []
   for (let queue of this.queues) {
-    if (queue.expire == 0) {
+    if (queue.expireTimestamp == 0) {
       /**wait for first event */
       continue
     } else {
       /**middle of a event list */
-      trace.push({
-        events: this.log.slice(queue.head),
+      traces.push({
         rule: this.alarmList.name,
         currentStatus: this.alarmList.slice(0, queue.current)
       })
     }
   }
-  return {
-    _id: this._id,
-    currentTrigger: this.queues.length,
-    alarmList: this.alarmList,
-    trace: trace
-  }
+  return traces
 }
 
 module.exports = RuleHandler

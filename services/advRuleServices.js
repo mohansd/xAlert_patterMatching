@@ -7,7 +7,7 @@ const { dbException, paramsException, noDataExcetion } = require('../class/excep
 
 let advRuleHandlers = []
 
-/**init ruleHandlers by rules */
+/**add a new advance rule handler to advRuleHandlers */
 const addRuleHandlers = advRules => {
   return new Promise((resolve, reject) => {
     try {
@@ -44,8 +44,8 @@ const initRules = () => {
 }
 
 /**receive a event by a advance rule handler */
-const receiveEventByOne = async (advRuleHandler, events) => {
-  return new Promise((resolve, reject) => {
+const receiveEventByOne = (advRuleHandler, events) => {
+  return new Promise(async (resolve, reject) => {
     try {
       for (let event of events) {
         advRuleHandler.expireCheck(event)
@@ -55,7 +55,7 @@ const receiveEventByOne = async (advRuleHandler, events) => {
           debug(`not match`)
         }
       }
-      debug()
+      debug(`${advRuleHandler._id} accept new event`)
       resolve(advRuleHandler)
     } catch (err) {
       reject(err)
@@ -64,20 +64,26 @@ const receiveEventByOne = async (advRuleHandler, events) => {
 }
 
 const receiveEventByAll = events => {
-  advRuleHandlers.forEach(advRulehandler => {
-    receiveEventByOne(advRulehandler, events)
-    .then()
+  return new Promise((resolve, reject) => {
+    advRuleHandlers.forEach(advRulehandler => {
+      receiveEventByOne(advRulehandler, events)
+    })
+    debug(`all handler accept new event`)
+    resolve()
   })
 }
 
-//TODO
-/**get all trace list */
-const getAdvanceEvent = ruleHandlers => {
-  let advRuleHandlers = []
-  ruleHandlers.forEach(ruleHandler => {
-    advRuleHandlers.push(ruleHandlers.getUncompleteAdvanceEvent(ruleHandler))
+/**get all rule handler with trace list */
+const getAdvRuleHandler = () => {
+  let results = []
+  advRuleHandlers.forEach(advRuleHandler => {
+    results.push(
+      Object.assign(advRuleHandler, {
+        traces: advRuleHandler.getTraces()
+      })
+    )
   })
-  return advRuleHandlers
+  return results
 }
 
 module.exports = {
@@ -85,5 +91,6 @@ module.exports = {
   addRuleHandlers,
   initRules,
   receiveEventByOne,
-  receiveEventByAll
+  receiveEventByAll,
+  getAdvRuleHandler
 }

@@ -4,7 +4,7 @@ const path = require('path')
 /**local modules */
 const common = require('./services/common')
 const advRuleService = require('./services/advRuleServices')
-const { advRuleHandler } = advRuleService
+const { advRuleHandlers } = advRuleService
 const { debug, info, warn, error } = require('./services/logger')
 
 common.connectMongoDB()
@@ -20,25 +20,14 @@ const getEventList = () => {
 let advanceRules = getAdvanceRules()
 let eventList = getEventList()
 
-patternMatch
-  .initRules(advanceRules)
+advRuleService
+  .addRuleHandlers(advanceRules)
   .then(ruleHandlers => {
-    // ruleHandlers.forEach(ruleHandler => {
-    //   patternMatch.receiveEvent(ruleHandler, eventList)
-    // })
-    patternMatch.receiveEvent(ruleHandlers[0], eventList)
-    patternMatch.receiveEvent(ruleHandlers[1], eventList)
+    debug(JSON.stringify(ruleHandlers))
+    advRuleService.receiveEventByAll(eventList)
     return new Promise((resolve, reject) => {
       setTimeout(() => {
-        ruleHandlers.forEach(ruleHandler => {
-          ruleHandler.traces = []
-          ruleHandler.queues.forEach(queue => {
-            if (queue.head !== null) {
-              ruleHandler.traces.push(ruleHandler.log.slice(queue.head))
-            }
-          })
-        })
-        resolve(ruleHandlers)
+        debug(JSON.stringify(advRuleService.getAdvRuleHandler(), null, '\t'))
       }, 5000)
     })
   })
