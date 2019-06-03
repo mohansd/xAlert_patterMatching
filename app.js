@@ -17,19 +17,17 @@ const getEventList = () => {
   return JSON.parse(fs.readFileSync(path.join(__dirname, 'tests/eventList.json'))).eventList
 }
 
-let advRules = getAdvanceRules()
+let advanceRules = getAdvanceRules()
 let eventList = getEventList()
 
-advRuleService.addRuleHandlers(advRules).then()
-
-advRuleService
+patternMatch
   .initRules(advanceRules)
   .then(ruleHandlers => {
     // ruleHandlers.forEach(ruleHandler => {
-    //   advRuleService.receiveEvent(ruleHandler, eventList)
+    //   patternMatch.receiveEvent(ruleHandler, eventList)
     // })
-    advRuleService.receiveEvent(ruleHandlers[0], eventList)
-    advRuleService.receiveEvent(ruleHandlers[1], eventList)
+    patternMatch.receiveEvent(ruleHandlers[0], eventList)
+    patternMatch.receiveEvent(ruleHandlers[1], eventList)
     return new Promise((resolve, reject) => {
       setTimeout(() => {
         ruleHandlers.forEach(ruleHandler => {
