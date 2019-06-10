@@ -91,10 +91,13 @@ RuleHandler.prototype.handlerEvent = function(event) {
             events: this.log.slice(this.queues[i].head)
           }).then(doc => {
             debug(`save to DB`)
+            /**remove queue which is end */
+            this.queues.splice(i, 1)
+            --i
             /**remove the expire events in log */
-            let nextHead = this.queues[i].head
+            let nextHead = this.queues[0].head
             for (let queue of this.queues) {
-              if (queue.head !== null && queue.head > this.queues[i].head && queue.head < nextHead) {
+              if (queue.head !== null && queue.head < nextHead) {
                 nextHead = queue.head
               }
             }
@@ -104,9 +107,6 @@ RuleHandler.prototype.handlerEvent = function(event) {
                 queue.head = queue.head - nextHead
               }
             }
-            /**remove queue which is end */
-            this.queues.splice(i, 1)
-            --i
             resolve()
             return
           })
@@ -136,10 +136,13 @@ RuleHandler.prototype.expireCheck = function(event) {
   for (let index in this.queues) {
     if (this.queues[index].expireTimestamp < new Date(event.timestamp).getTime() && this.queues[index].expireTimestamp !== 0) {
       debug(`timeout remove`)
+      /**remove queue which expire */
+      this.queues.splice(index, 1)
+      --i
       /**remove the expire events in log */
-      let nextHead = this.queues[index].head
+      let nextHead = this.queues[0].head
       for (let queue of this.queues) {
-        if (queue.head !== null && queue.head > this.queues[index].head && queue.head < nextHead) {
+        if (queue.head !== null && queue.head < nextHead) {
           nextHead = queue.head
         }
       }
@@ -149,9 +152,6 @@ RuleHandler.prototype.expireCheck = function(event) {
           queue.head = queue.head - nextHead
         }
       }
-      /**remove queue which expire */
-      this.queues.splice(index, 1)
-      --i
       resolve()
       return
     }
